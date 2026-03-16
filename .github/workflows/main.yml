@@ -1,35 +1,36 @@
-name: A_Evolution_Node_v7_Fixed
+name: A-Evolution Memory Sync
 
 on:
+  workflow_dispatch:      # 允許手動點擊按鈕執行
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *'   # 每小時自動執行一次
 
 jobs:
-  build:
+  evolution_job:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Set up Python
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Install Essential Dependencies
         run: |
           python -m pip install --upgrade pip
-          # 補上 typing_extensions 以修復報錯
-          pip install requests duckduckgo_search urllib3 typing_extensions
+          # 直接安裝必要套件，確保不因缺件報錯
+          pip install requests gspread oauth2client duckduckgo-search
 
-      - name: Run A Evolution Core
-        run: python sync_handler.py
+      - name: Run A Evolution Logic
         env:
-          # 這裡必須將所有 Secret 映射給 Python 環境變數
+          # 將妳在 GitHub Settings 設的 Secrets 映射給程式碼
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-          VOL2_GIST_ID: ${{ secrets.VOL2_GIST_ID }}
-          DB_QUERY_RETRY_TOKEN: ${{ secrets.DB_QUERY_RETRY_TOKEN }}
-          CORE_LOGIC: ${{ secrets.CORE_LOGIC }}
+          DB_QUERY_RETRY_TOKEN: ${{ secrets.DB_QUERY_RETRY_TOKEN }} # OpenAI Key
+          GCP_JSON_KEY: ${{ secrets.GCP_JSON_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        run: |
+          python sync_handler.py
