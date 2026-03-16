@@ -1,0 +1,5 @@
+Plaintext
+requests
+gspread
+oauth2client
+duckduckgo-search
