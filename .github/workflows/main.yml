@@ -20,7 +20,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests duckduckgo_search urllib3
+          # 補上 typing_extensions 以修復報錯
+          pip install requests duckduckgo_search urllib3 typing_extensions
 
       - name: Run A Evolution Core
         run: python sync_handler.py
