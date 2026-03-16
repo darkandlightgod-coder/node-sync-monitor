@@ -1,20 +1,20 @@
-import os
-import sys
+import os, sys
 
-# 從 GitHub Actions 的環境變數中提取 Secret 內容
-logic = os.getenv("CORE_LOGIC")
+def main():
+    print("--- [System Initializing] ---")
 
-print("--- [System Initializing] ---")
-if not logic:
-    print("CRITICAL ERROR: Environment variable 'CORE_LOGIC' is empty.")
-    print("Please check GitHub Secrets configuration.")
-    sys.exit(1)
-
-try:
+    logic = os.getenv("CORE_LOGIC")
+    if not logic:
+        print("CRITICAL ERROR: Environment variable 'CORE_LOGIC' is empty.")
+        sys.exit(1)
+    
     print("Executing CORE_LOGIC...")
-    # 執行 Secret 裡面的所有代碼
-    exec(logic)
-    print("--- [Execution Complete] ---")
-except Exception as e:
-    print(f"RUNTIME ERROR in CORE_LOGIC: {e}")
-    sys.exit(1)
+    try:
+
+        exec(logic)
+    except Exception as e:
+        print(f"RUNTIME ERROR: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
